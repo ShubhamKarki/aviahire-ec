@@ -1,48 +1,56 @@
 const stringSimilarity = require("string-similarity");
 
 const handleGithub = (data, username, name) => {
-  const dataWithMatchPercent = data.map((element, index) => {
+  const dataWithMatchPercent = data.map((element) => {
     var res = element.title.split(" ");
     var githubUserName = res[0];
     var githubNameWithBracket = element.title.match(/\((.*?)\)/g);
-    if (githubNameWithBracket == null) return { ...element, match: 0 };
-
-    var githubName = githubNameWithBracket.map((b) =>
-      b.replace(/\(|(.*?)\)/g, "$1")
-    )[0];
+    var githubName;
+    if (githubNameWithBracket == null) {
+      githubName = "";
+    } else {
+      githubName = githubNameWithBracket.map((b) =>
+        b.replace(/\(|(.*?)\)/g, "$1")
+      )[0];
+    }
 
     console.log(element.title);
-    console.log(stringSimilarity.compareTwoStrings(username.toLowerCase(), githubUserName.toLowerCase()));
-    const usernameMatch =
-      stringSimilarity.compareTwoStrings(
+    console.log(
+      stringSimilarity.compareTwoStrings( 
         username.toLowerCase(),
         githubUserName.toLowerCase()
-      ) / Math.max(username.length, githubUserName.length);
+      )
+    );
+    const usernameMatch = stringSimilarity.compareTwoStrings(
+      username.toLowerCase(),
+      githubUserName.toLowerCase()
+    );
     console.log(githubUserName.toLowerCase(), username.toLowerCase());
-    console.log('');
-    console.log(   stringSimilarity.compareTwoStrings(name.toLowerCase(), githubName.toLowerCase()));
-    const nameMatch =
+    console.log("");
+    console.log(
       stringSimilarity.compareTwoStrings(
         name.toLowerCase(),
         githubName.toLowerCase()
-      ) / Math.max(name.length, githubName.length);
-    const nameUsernameMatch =
-      stringSimilarity.compareTwoStrings(
-        name.toLowerCase(),
-        githubUserName.toLowerCase()
-      ) / Math.max(name.length, githubUserName.length);
-
-    // console.log(githubName.toLowerCase(), name.toLowerCase());
-    // console.log(' ');
-    // console.log();
+      )
+    );
+    const nameMatch = stringSimilarity.compareTwoStrings(
+      name.toLowerCase(),
+      githubName.toLowerCase()
+    );
+    const nameUsernameMatch = stringSimilarity.compareTwoStrings(
+      name.toLowerCase(),
+      githubUserName.toLowerCase()
+    );
 
     return {
       ...element,
-      match:
-        ((10 - index) * 0.2 +
-          (usernameMatch > 0.9 ? usernameMatch * 3 : usernameMatch) +
+      match: element.isLocation
+        ? (usernameMatch > 0.9 ? usernameMatch * 3 : usernameMatch) +
           nameMatch +
-          nameUsernameMatch),
+          nameUsernameMatch
+        : username.equalsIgnoreCase(githubUserName)
+        ? usernameMatch * 3
+        : 0,
     };
   });
   dataWithMatchPercent.sort(function (a, b) {

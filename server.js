@@ -1,15 +1,19 @@
 const express = require("express");
 const app = express();
 const url = require("url");
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 //Import puppeteer function
 const searchGoogle = require("./searchGoogle");
 const handleGithub = require("./handleGithub");
+const handleLinkedin = require("./handleLinkedin");
+
+// Import cheerio
+const githubRepoUsers = require("./github_repos_user");
 
 app.use(express.json());
 
-app.post("/search", (req, res) => {
+app.post("/search", async (req, res) => {
   console.log("called post");
   const { name, profile_url, location } = req.body;
   const givenUrl = url.parse(profile_url, true);
@@ -18,6 +22,9 @@ app.post("/search", (req, res) => {
   console.log(location);
   console.log(givenUrl.host); //returns 'localhost:8080'
   console.log(givenUrl.pathname); //returns '/default.htm'
+
+  let result;
+  let resultname;
 
   switch (givenUrl.host) {
     case "www.linkedin.com":
@@ -28,21 +35,32 @@ app.post("/search", (req, res) => {
           ? split.slice(0, split.length - 1).join(" ")
           : split[0];
 
-      searchGoogle("github.com", name, location, givenUrl.pathname).then(
-        (results) => {
-          console.log(results);
-          const result = handleGithub(results, username, name);
-          console.log(result);
-          //Returns a 200 Status OK with Results JSON back to the client.
-          res.status(200);
-          res.json(result);
-        }
-      );
+      result = await searchGoogle("github.com", name, username, location);
+
+      resultname = handleGithub(result, username, name);
+      res.status(200);
+      res.json({
+        result: resultname,
+      });
+
       //   searchGoogle("gitlab.com", name, location ,  givenUrl.pathname);
       //   searchGoogle("twitter.com", name, location ,  givenUrl.pathname);
       break;
     case "www.github.com":
-      searchGoogle("linkedin.com", name, location, givenUrl.pathname);
+      var username = givenUrl.pathname.split("/")[1]; // for https://github.com/ShubhamKarki
+      console.log(username);
+
+      result = await searchGoogle("linkedin.com", name, username, location);
+      const skills = await githubRepoUsers(username);
+
+      resultname = handleLinkedin(result, username, name);
+
+      res.status(200);
+      res.json({
+        result: resultname,
+        skills: skills,
+      });
+
       //   searchGoogle("gitlab.com", name, location ,  givenUrl.pathname);
       //   searchGoogle("twitter.com", name, location ,  givenUrl.pathname);
       break;
