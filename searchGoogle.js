@@ -22,7 +22,7 @@ function parseUrl(href) {
 
 const searchGoogle = async (site, name, username, location) => {
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
   const searchResults = async (url, isLocation) => {
