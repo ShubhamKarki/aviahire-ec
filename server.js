@@ -2,6 +2,9 @@ const express = require("express");
 const app = express();
 const url = require("url");
 const port = process.env.PORT || 3000;
+const ip = process.env.IP || '0.0.0.0';
+
+
 
 //Import puppeteer function
 const searchGoogle = require("./searchGoogle");
@@ -140,4 +143,4 @@ app.get("/search", (request, response) => {
 app.get("/", (req, res) => res.send("Hello World!"));
 
 //Initialises the express server on the port 30000
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+app.listen(por, ip, () => console.log(`Example app listening on port ${port}! and ip ${ip}`));
