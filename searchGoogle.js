@@ -101,7 +101,7 @@ const searchGoogle = async (site, name, username, location) => {
     ),
   ]);
 
-  await browser.close();
+  // await browser.close();
   return [
     ...nameResult,
     ...usernameResult,

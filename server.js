@@ -7,6 +7,7 @@ const port = process.env.PORT || 3000;
 const searchGoogle = require("./searchGoogle");
 const handleGithub = require("./handleGithub");
 const handleLinkedin = require("./handleLinkedin");
+const handleTwitter = require("./handleTwitter");
 
 // Import cheerio
 const githubRepoUsers = require("./github_repos_user");
@@ -35,46 +36,81 @@ app.post("/search", async (req, res) => {
           ? split.slice(0, split.length - 1).join(" ")
           : split[0];
 
-      result = await searchGoogle("github.com", name, username, location);
+      // result = await searchGoogle("github.com", name, username, location);
 
-      resultname = handleGithub(result, username, name);
+      // resultname = handleGithub(result, username, name);
+
+      
+       [
+        resultGithubSearch,
+        resultTwitterSearch,
+      ] = await Promise.all([
+        searchGoogle("github.com", name, username, location),
+        searchGoogle("twitter.com", name, username, location),
+      ]);
+      githubUrl = handleGithub(resultGithubSearch, username, name);
+      twitterUrl = handleTwitter(resultTwitterSearch, username, name)
+
       res.status(200);
       res.json({
-        result: resultname,
+        twitterUrl: twitterUrl,
+        githubUrl:githubUrl,
       });
 
       //   searchGoogle("gitlab.com", name, location ,  givenUrl.pathname);
-      //   searchGoogle("twitter.com", name, location ,  givenUrl.pathname);
+
       break;
     case "www.github.com":
       var username = givenUrl.pathname.split("/")[1]; // for https://github.com/ShubhamKarki
       console.log(username);
 
-      result = await searchGoogle("linkedin.com", name, username, location);
-      const skills = await githubRepoUsers(username);
-
-      resultname = handleLinkedin(result, username, name);
+       [
+        resultLinkedinSearch,
+        resultTwitterSearch,
+        skills,
+      ] = await Promise.all([
+        searchGoogle("linkedin.com", name, username, location),
+        searchGoogle("twitter.com", name, username, location),
+        githubRepoUsers(username),
+      ]);
+      linkedinUrl = handleLinkedin(resultLinkedinSearch, username, name);
+      twitterUrl = handleTwitter(resultTwitterSearch, username, name)
 
       res.status(200);
       res.json({
-        result: resultname,
+        twitterUrl: twitterUrl,
+        linkedinUrl:linkedinUrl,
         skills: skills,
       });
-
-      //   searchGoogle("gitlab.com", name, location ,  givenUrl.pathname);
-      //   searchGoogle("twitter.com", name, location ,  givenUrl.pathname);
       break;
     // case "www.gitlab.com":
     //   searchGoogle("linkedin.com", name, location ,  givenUrl.pathname);
     //   searchGoogle("github.com", name,location ,   givenUrl.pathname);
     //   searchGoogle("twitter.com", name, location ,  givenUrl.pathname);
     //   break;
-    // case "www.twitter.com":
-    //   searchGoogle("linkedin.com", name, location ,  givenUrl.pathname);
-    //   searchGoogle("github.com", name, location ,  givenUrl.pathname);
-    //   searchGoogle("gitlab.com", name, location ,  givenUrl.pathname);
+    case "www.twitter.com":
+      var username = givenUrl.pathname.split("/")[1]; // for https://twitter.com/shimpigopal
+      console.log(username);
+       [
+        resultLinkedinSearch,
+        resultGithubSearch,
+      ] = await Promise.all([
+        searchGoogle("linkedin.com", name, username, location),
+        searchGoogle("github.com", name, username, location),
+      ]);
 
-    //   break;
+      linkedinUrl = handleLinkedin(resultLinkedinSearch, username, name);
+      githubUrl = handleGithub(resultGithubSearch, username, name)
+    
+
+      res.status(200);
+      res.json({
+        linkedinUrl:linkedinUrl,
+        githubUrl:githubUrl,
+      });
+      // searchGoogle("gitlab.com", name, location ,  givenUrl.pathname);
+
+      break;
     default:
       break;
   }
