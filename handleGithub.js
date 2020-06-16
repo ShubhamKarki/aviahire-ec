@@ -48,7 +48,7 @@ const handleGithub = (data, username, name) => {
         ? (usernameMatch > 0.9 ? usernameMatch * 3 : usernameMatch) +
           nameMatch +
           nameUsernameMatch
-        : username.equalsIgnoreCase(githubUserName)
+        : username.toUpperCase() == githubUserName.toUpperCase()
         ? usernameMatch * 3
         : 0,
     };

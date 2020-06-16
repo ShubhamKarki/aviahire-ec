@@ -21,8 +21,10 @@ function parseUrl(href) {
 }
 
 const searchGoogle = async (site, name, username, location) => {
-  const browser = await puppeteer.launch({ headless: false, devtools: true });
-
+  const browser = await puppeteer.launch({ headless: false,  args: [
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+  ],});
   const searchResults = async (url, isLocation) => {
     const page = await browser.newPage();
 
@@ -40,7 +42,7 @@ const searchGoogle = async (site, name, username, location) => {
       else request.continue();
     });
     //use google search URL params to directly access the search results for our search query
-    await page.goto(url, { waitUntil: "load" });
+    await page.goto(url,  {waitUntil: 'load', timeout: 0} );
     //Wait for one of the div classes to load
     await page.waitForSelector("div[id=search]");
 
@@ -101,7 +103,7 @@ const searchGoogle = async (site, name, username, location) => {
     ),
   ]);
 
-  // await browser.close();
+  await browser.close();
   return [
     ...nameResult,
     ...usernameResult,
