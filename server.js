@@ -27,23 +27,14 @@ app.post("/search", async (req, res) => {
   console.log(givenUrl.host); //returns 'localhost:8080'
   console.log(givenUrl.pathname); //returns '/default.htm'
 
-  let result;
-  let resultname;
-
   switch (givenUrl.host) {
-    case "www.linkedin.com":
+    case "www.linkedin.com" || "linkedin.com":
       var slug = givenUrl.pathname.split("/")[2];
       var split = slug.split("-");
       var username =
         split.length > 1
           ? split.slice(0, split.length - 1).join(" ")
           : split[0];
-
-      // result = await searchGoogle("github.com", name, username, location);
-
-      // resultname = handleGithub(result, username, name);
-
-      
        [
         resultGithubSearch,
         resultTwitterSearch,
@@ -63,7 +54,7 @@ app.post("/search", async (req, res) => {
       //   searchGoogle("gitlab.com", name, location ,  givenUrl.pathname);
 
       break;
-    case "www.github.com":
+    case "www.github.com" || "github.com":
       var username = givenUrl.pathname.split("/")[1]; // for https://github.com/ShubhamKarki
       console.log(username);
 
@@ -91,7 +82,7 @@ app.post("/search", async (req, res) => {
     //   searchGoogle("github.com", name,location ,   givenUrl.pathname);
     //   searchGoogle("twitter.com", name, location ,  givenUrl.pathname);
     //   break;
-    case "www.twitter.com":
+    case "www.twitter.com" || "twitter.com":
       var username = givenUrl.pathname.split("/")[1]; // for https://twitter.com/shimpigopal
       console.log(username);
        [
